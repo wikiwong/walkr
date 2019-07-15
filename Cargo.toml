@@ -5,3 +5,4 @@ authors = ["Rob Wong <rwong@fanatics.com>"]
 edition = "2018"
 
 [dependencies]
+tokio = "0.1.20"
