@@ -1,10 +1,10 @@
-# findr
+# walkr
 
-`findr` recursively searches a directory for files matching a regex, and executes a closure you define, taking in a [&DirEntry](https://doc.rust-lang.org/std/fs/struct.DirEntry.html).  This tiny crate allows you to find and operate on files quickly, making it convenient to quickly write tools performing file processing in Rust.
+`walkr` recursively searches a directory for files matching a regex, and executes a closure you define, taking in a [&DirEntry](https://doc.rust-lang.org/std/fs/struct.DirEntry.html).  This tiny crate allows you to find and operate on files quickly, making it convenient to quickly write tools performing file processing in Rust.
 
 ## Usage
 ```rust
-match lib::find(Path::new("./"), &"\\.rs".to_owned(), &|d| {
+match walkr::find(Path::new("./"), &"\\.rs".to_owned(), &|d| {
   println!("File: {:?} matched!", d.file_name().into_string().unwrap());
   
   // open the file and print the contents to stdout

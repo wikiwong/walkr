@@ -13,7 +13,7 @@ use regex::Regex;
 /// # Example
 ///
 /// ```
-/// match lib::find(Path::new("./"), &"\\.rs".to_owned(), &|d| {
+/// match walkr::find(Path::new("./"), &"\\.rs".to_owned(), &|d| {
 ///   println!("File: {:?} matched!", d.file_name().into_string().unwrap());
 ///
 ///   // open the file and print the contents to stdout
