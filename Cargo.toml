@@ -1,0 +1,14 @@
+[package]
+name = "findr"
+version = "0.1.0"
+authors = ["Rob Wong <dev.wonger@gmail.com>"]
+edition = "2018"
+description = "Recursively search a directory for files matching a regex, and execute a closure you define. This tiny crate allows you to find and operate on files quickly, making it convenient to quickly write tools performing file processing in Rust."
+keywords = ["file", "regex", "recursive", "process"]
+license = "MIT"
+repository = "https://github.com/wikiwong/findr"
+homepage = "https://github.com/wikiwong/findr"
+
+[dependencies]
+tokio = "0.1.20"
+regex = "1"
