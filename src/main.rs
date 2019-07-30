@@ -1,17 +1,15 @@
-#![allow(dead_code)]
-
 use std::env;
 use std::path::Path;
 use std::fs::{File};
 use std::io::Read;
 
-mod lib;
+use walkr;
 
 // Find a file {{f}} in directory {{d}} and print it's contents:
 // cargo run {{d}} {{f}}
 fn main() {
     let args: Vec<String> = env::args().collect();
-    match lib::find(Path::new(&args[1]), &args[2], &|d| {
+    match walkr::find(Path::new(&args[1]), &args[2], &|d| {
         println!("File: {:?} matched!", d.file_name().into_string().unwrap());
         let mut f = File::open(d.path()).unwrap();
         let mut s = String::new();
@@ -23,6 +21,8 @@ fn main() {
         }
     }) {
       Ok(_) => println!("done"),
-      Err(e) => panic!(e)
-    }
+      Err(e) => {
+          panic!("{:?}", e);
+      }
+    };
 }

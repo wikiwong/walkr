@@ -1,9 +1,11 @@
 use std::fs::{read_dir,  DirEntry};
-use std::io;
 use std::path::Path;
-use regex::Regex;
+use regex;
+use error::WalkrError;
 
-/// Recursively search a directory for a files matching a regex and execute a closure on that regex.
+pub mod error;
+
+/// Recursively search a directory for a files matching a regex recieve the corresponding &DirEntry as an argument to the provided closure.
 ///
 /// # Arguments
 ///
@@ -13,6 +15,11 @@ use regex::Regex;
 /// # Example
 ///
 /// ```
+/// use std::env;
+/// use std::path::Path;
+/// use std::fs::{File};
+/// use std::io::Read;
+/// 
 /// match walkr::find(Path::new("./"), &"\\.rs".to_owned(), &|d| {
 ///   println!("File: {:?} matched!", d.file_name().into_string().unwrap());
 ///
@@ -30,33 +37,46 @@ use regex::Regex;
 ///   Err(e) => panic!(e)
 /// }
 /// ```
-pub fn find(dir: &Path, search_str: &String, cb: &Fn(&DirEntry)) -> io::Result<()> {
+pub fn find(dir: &Path, search_str: &String, cb: &Fn(&DirEntry)) -> Result<(), WalkrError> {
     if dir.is_dir() {
-        for entry in read_dir(dir)? {
-            let entry = entry?;
-            let path = entry.path();
-            if path.is_dir() {
-                find(&path, search_str, cb)?;
-            } else {
-                match entry.file_name().into_string() {
-                    Ok(file_name) => {
-                        match Regex::new(format!(r#"{}"#, search_str).as_str()) {
-                            Ok(re) => {
-                                if re.is_match(file_name.as_str()) {
-                                    cb(&entry);
-                                }
-                            },
-                            Err(e) => {
-                                panic!(e);
+        match read_dir(dir) {
+            Ok(rd) => {
+                for entry in rd {
+                    match entry {
+                        Ok(dir_entry) => {
+                            let path = dir_entry.path();
+                            if path.is_dir() {
+                                find(&path, search_str, cb)?;
+                            } else {
+                                match dir_entry.file_name().into_string() {
+                                    Ok(file_name) => {
+                                        match regex::Regex::new(format!(r#"{}"#, search_str).as_str()) {
+                                            Ok(re) => {
+                                                if re.is_match(file_name.as_str()) {
+                                                    cb(&dir_entry);
+                                                }
+                                            },
+                                            Err(e) => {
+                                                return Err(WalkrError::new(error::Error::RegexError(e)));
+                                            }
+                                        }
+                                    },
+                                    Err(e) => {
+                                        println!("Couldn't convert filename {:?} into a string", e);
+                                    }
+                                };
                             }
+                        },
+                        Err(e) => {
+                            return Err(WalkrError::new(error::Error::IOError(e)));
                         }
-                    },
-                    Err(e) => {
-                        panic!(e);
-                    }
+                    };
                 }
+            },
+            Err(e) => {
+                return Err(WalkrError::new(error::Error::IOError(e)));
             }
-        }
+        };
     }
     Ok(())
 }
